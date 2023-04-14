@@ -1,0 +1,103 @@
+#include <Adafruit_NeoPixel.h>
+
+#define PIXEL_PIN 6
+#define PIXEL_COUNT 256
+
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800);
+
+// Define the pins for the push buttons
+#define UP_PIN 2
+#define DOWN_PIN 3
+#define LEFT_PIN 4
+#define RIGHT_PIN 5
+
+// Define the variables for the game
+#define SNAKE_MAX_LENGTH 64
+int snakeX[SNAKE_MAX_LENGTH];
+int snakeY[SNAKE_MAX_LENGTH];
+int snakeLength = 4;
+int foodX, foodY;
+int direction = RIGHT;
+int score = 0;
+
+// Define the constants for the game
+#define PIXEL_WIDTH 16
+#define PIXEL_HEIGHT 16
+#define PIXEL_SIZE 8
+#define FRAMES_PER_SECOND 10
+#define SNAKE_COLOR 255, 0, 0
+#define FOOD_COLOR 0, 255, 0
+
+// Define the directions for the snake
+#define UP 0
+#define DOWN 1
+#define LEFT 2
+#define RIGHT 3
+
+void setup() {
+  // Initialize the Neopixel Light Shield
+  pixels.begin();
+  pixels.clear();
+  pixels.show();
+
+  // Set the snake's initial position and direction
+  snakeX[0] = 5;
+  snakeY[0] = 5;
+  snakeX[1] = 4;
+  snakeY[1] = 5;
+  snakeX[2] = 3;
+  snakeY[2] = 5;
+  snakeX[3] = 2;
+  snakeY[3] = 5;
+
+  // Generate the food at a random position
+  generateFood();
+
+  // Set up the push buttons with pull-up resistors
+  pinMode(UP_PIN, INPUT_PULLUP);
+  pinMode(DOWN_PIN, INPUT_PULLUP);
+  pinMode(LEFT_PIN, INPUT_PULLUP);
+  pinMode(RIGHT_PIN, INPUT_PULLUP);
+}
+
+void loop() {
+  // Check for user input and update the snake's direction
+  checkInput();
+
+  // Move the snake in the current direction
+  moveSnake();
+
+  // Check for collisions with the food and the walls
+  checkCollisions();
+
+  // Display the game on the Neopixel Light Shield
+  displayGame();
+
+  // Wait for the next frame
+  delay(1000 / FRAMES_PER_SECOND);
+}
+
+void generateFood() {
+  // Generate the food at a random position
+  foodX = random(PIXEL_WIDTH);
+  foodY = random(PIXEL_HEIGHT);
+}
+
+void checkInput() {
+  // Check for user input and update the snake's direction accordingly
+  if (digitalRead(UP_PIN) == LOW && direction != DOWN) {
+    direction = UP;
+  } else if (digitalRead(DOWN_PIN) == LOW && direction != UP) {
+    direction = DOWN;
+  } else if (digitalRead(LEFT_PIN) == LOW && direction != RIGHT) {
+    direction = LEFT;
+  } else if (digitalRead(RIGHT_PIN) == LOW && direction != LEFT) {
+    direction = RIGHT;
+  }
+}
+
+void moveSnake() {
+  // Move the snake in the current direction
+  for (int i = snakeLength - 1; i > 0; i--) {
+    snakeX[i] = snakeX[i - 1];
+    snakeY[i
